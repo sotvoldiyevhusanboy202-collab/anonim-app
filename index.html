@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>So'nggi Xabarlar</title>
-    <!-- Telegram WebApp SDK -->
+    <title>So'nggi Xabarlar Tarixi</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
@@ -12,25 +11,20 @@
             --text-color: var(--tg-theme-text-color, #ffffff);
             --card-bg: var(--tg-theme-secondary-bg-color, #27272a);
             --hint-color: var(--tg-theme-hint-color, #a1a1aa);
-            --accent-color: #0088cc;
         }
-
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
             margin: 0;
             padding: 16px;
+            box-sizing: border-box;
         }
-
         h2 {
             margin-top: 0;
             font-size: 20px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            margin-bottom: 16px;
         }
-
         .msg-card {
             background-color: var(--card-bg);
             border-radius: 12px;
@@ -38,7 +32,6 @@
             margin-bottom: 12px;
             border: 1px solid rgba(255, 255, 255, 0.08);
         }
-
         .msg-header {
             display: flex;
             justify-content: space-between;
@@ -46,13 +39,11 @@
             color: var(--hint-color);
             margin-bottom: 8px;
         }
-
         .msg-body {
             font-size: 15px;
             line-height: 1.4;
             word-break: break-word;
         }
-
         .loading, .empty {
             text-align: center;
             padding: 40px 20px;
@@ -62,7 +53,7 @@
 </head>
 <body>
     <div class="container">
-        <h2>📨 So'nggi Xabarlar</h2>
+        <h2>📨 Barcha Xabarlar Tarixi</h2>
         <div id="messages-list">
             <div class="loading">Yuklanmoqda...</div>
         </div>
@@ -72,8 +63,9 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // ⚠️ DIQQAT: Bu yerga Python botingiz ishlayotgan server domenini kiritasiz!
-        const API_URL = "https://YOUR-BOT-SERVER-DOMAIN.com"; 
+        // ⚠️ DIQQAT: Pastdagi API_URL manzilini o'zingizning internetga ulangan bot serveringiz manzili bilan o'zgartiring!
+        // Masalan: LocalTunnel yoki ngrok orqali olingan https://xxxx.loca.lt manzili
+        const API_URL = "https://SIZNING_SERVER_HTTPS_MANZIL.com"; 
 
         async function fetchMessages() {
             const listEl = document.getElementById('messages-list');
@@ -99,7 +91,7 @@
                 }
 
                 if (result.messages.length === 0) {
-                    listEl.innerHTML = '<div class="empty">Hali sizga hech qanday xabar kelmadi 📭</div>';
+                    listEl.innerHTML = '<div class="empty">Hali xabarlar tarixi bo\'sh 📭</div>';
                     return;
                 }
 
@@ -109,8 +101,8 @@
                     card.className = 'msg-card';
                     card.innerHTML = `
                         <div class="msg-header">
-                            <span>📌 ID: #${msg.id}</span>
-                            <span>${msg.created}</span>
+                            <span>📌 Xabar ID: #${msg.id}</span>
+                            <span>📅 ${msg.created}</span>
                         </div>
                         <div class="msg-body">
                             ${msg.text ? escapeHtml(msg.text) : '<i>Media xabar</i>'}
@@ -120,7 +112,7 @@
                 });
 
             } catch (err) {
-                listEl.innerHTML = '<div class="empty">Serverga ulanishda xatolik yuz berdi!</div>';
+                listEl.innerHTML = '<div class="empty">Serverga ulanishda xatolik yuz berdi! Bot serveringiz ishlayotganini va API_URL to\'g'ri ekanligini tekshiring.</div>';
             }
         }
 
