@@ -5,78 +5,157 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="dark light">
     <title>Barcha Xabarlar Tarixi</title>
+
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
     <style>
         :root {
             --bg-color: var(--tg-theme-bg-color, #1f2937);
             --text-color: var(--tg-theme-text-color, #f9fafb);
             --card-bg: var(--tg-theme-secondary-bg-color, #273444);
             --hint-color: var(--tg-theme-hint-color, #9ca3af);
-            --border-color: rgba(255, 255, 255, .10);
+            --border-color: rgba(255, 255, 255, 0.1);
         }
-        * { box-sizing: border-box; }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             padding: 16px;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont,
+                "Segoe UI", Roboto, sans-serif;
             background: var(--bg-color);
             color: var(--text-color);
         }
-        h2 { margin: 0 0 8px; font-size: 21px; }
-        .subtitle { margin: 0 0 16px; color: var(--hint-color); font-size: 13px; }
-        .toolbar { display: flex; gap: 8px; margin-bottom: 14px; }
+
+        h2 {
+            margin: 0 0 8px;
+            font-size: 21px;
+        }
+
+        .subtitle {
+            margin: 0 0 16px;
+            color: var(--hint-color);
+            font-size: 13px;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
         button {
-            border: 0; border-radius: 9px; padding: 10px 13px;
-            background: var(--card-bg); color: var(--text-color);
-            font-size: 14px; cursor: pointer;
+            border: 0;
+            border-radius: 9px;
+            padding: 10px 13px;
+            background: var(--card-bg);
+            color: var(--text-color);
+            font-size: 14px;
+            cursor: pointer;
         }
+
+        button:disabled {
+            opacity: 0.5;
+        }
+
         .msg-card {
-            background: var(--card-bg); border: 1px solid var(--border-color);
-            border-radius: 12px; padding: 14px; margin-bottom: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
         }
+
         .msg-header {
-            display: flex; flex-wrap: wrap; justify-content: space-between;
-            gap: 6px; margin-bottom: 10px; color: var(--hint-color);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 6px;
+            margin-bottom: 10px;
+            color: var(--hint-color);
             font-size: 12px;
         }
+
         .msg-body {
-            font-size: 15px; line-height: 1.5; overflow-wrap: anywhere;
+            font-size: 15px;
+            line-height: 1.5;
+            overflow-wrap: anywhere;
             white-space: pre-wrap;
         }
-        .loading, .empty, .error {
-            text-align: center; padding: 32px 18px; color: var(--hint-color);
+
+        .loading,
+        .empty,
+        .error {
+            text-align: center;
+            padding: 32px 18px;
+            color: var(--hint-color);
             line-height: 1.5;
         }
-        .error { color: #fca5a5; }
-        .count { color: var(--hint-color); font-size: 12px; margin: 0 0 12px; }
+
+        .error {
+            color: #fca5a5;
+        }
+
+        .count {
+            color: var(--hint-color);
+            font-size: 12px;
+            margin-bottom: 12px;
+        }
     </style>
 </head>
+
 <body>
     <main>
-        <h2>ðŸ“¨ Barcha Xabarlar Tarixi</h2>
-        <p class="subtitle">Siz koâ€˜rishga ruxsat berilgan xabarlar</p>
+        <h2>📨 Barcha Xabarlar Tarixi</h2>
+
+        <p class="subtitle">
+            Siz ko‘rishga ruxsat berilgan xabarlar
+        </p>
+
         <div class="toolbar">
-            <button id="refresh-btn" type="button">ðŸ”„ Yangilash</button>
+            <button id="refresh-btn" type="button">
+                🔄 Yangilash
+            </button>
         </div>
+
         <p id="count" class="count" hidden></p>
+
         <section id="messages-list" aria-live="polite">
-            <div class="loading">Xabarlar yuklanmoqda...</div>
+            <div class="loading">
+                Xabarlar yuklanmoqda...
+            </div>
         </section>
     </main>
 
     <script>
         "use strict";
 
-        // Bu manzil backend ishlayotgan Cloudflare Tunnel manzili boâ€˜lishi kerak.
-        // Tunnel manzili oâ€˜zgarsa, shu qatorni yangilang.
-        const API_URL = "https://cold-scanned-dirt-orders.trycloudflare.com";
-        const tg = window.Telegram && window.Telegram.WebApp
-            ? window.Telegram.WebApp
-            : null;
+        /*
+         * MUHIM:
+         * Bu yerga Python API serveringizning haqiqiy
+         * Cloudflare Tunnel manzilini yozing.
+         *
+         * Tunnel manzili o‘zgarsa, shu qatorni ham yangilang.
+         */
+        const API_URL =
+            "https://cold-scanned-dirt-orders.trycloudflare.com";
 
-        const listEl = document.getElementById("messages-list");
-        const countEl = document.getElementById("count");
-        const refreshBtn = document.getElementById("refresh-btn");
+        const tg =
+            window.Telegram && window.Telegram.WebApp
+                ? window.Telegram.WebApp
+                : null;
+
+        const listEl =
+            document.getElementById("messages-list");
+
+        const countEl =
+            document.getElementById("count");
+
+        const refreshBtn =
+            document.getElementById("refresh-btn");
 
         if (tg) {
             tg.ready();
@@ -85,112 +164,187 @@
 
         function showMessage(text, className = "empty") {
             listEl.replaceChildren();
+
             const div = document.createElement("div");
             div.className = className;
             div.textContent = text;
+
             listEl.appendChild(div);
             countEl.hidden = true;
         }
 
-        function addText(parent, tag, className, text) {
-            const el = document.createElement(tag);
-            if (className) el.className = className;
-            el.textContent = text == null || text === "" ? "" : String(text);
-            parent.appendChild(el);
-            return el;
-        }
-
         async function fetchMessages() {
             refreshBtn.disabled = true;
+
             showMessage("Xabarlar yuklanmoqda...");
 
             if (!tg) {
-                showMessage("Telegram Web App muhiti aniqlanmadi. Sahifani bot ichidagi Mini App tugmasi orqali oching.", "error");
+                showMessage(
+                    "Telegram Web App aniqlanmadi. " +
+                    "Sahifani Telegram ichidagi Mini App tugmasi orqali oching.",
+                    "error"
+                );
+
                 refreshBtn.disabled = false;
                 return;
             }
 
             const initData = tg.initData || "";
+
             if (!initData) {
-                showMessage("Telegram foydalanuvchi maâ€™lumotlari olinmadi. Sahifani oddiy brauzerdan emas, Telegram ilovasi ichidan oching.", "error");
+                showMessage(
+                    "Telegram foydalanuvchi ma’lumotlari olinmadi. " +
+                    "Sahifani oddiy brauzerdan emas, " +
+                    "bot ichidagi Mini App tugmasi orqali oching.",
+                    "error"
+                );
+
                 refreshBtn.disabled = false;
                 return;
             }
 
             try {
-                const response = await fetch(`${API_URL.replace(/\/+$/, "")}/api/messages`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ initData })
-                });
+                const response = await fetch(
+                    API_URL.replace(/\/+$/, "") + "/api/messages",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            initData: initData
+                        })
+                    }
+                );
 
                 let result;
+
                 try {
                     result = await response.json();
-                } catch {
-                    throw new Error(`Server JSON javob qaytarmadi (HTTP ${response.status}). Tunnel va backend holatini tekshiring.`);
+                } catch (error) {
+                    throw new Error(
+                        "Server JSON javob qaytarmadi. " +
+                        "HTTP: " + response.status
+                    );
                 }
 
                 if (!response.ok || !result.ok) {
-                    const errorText = result && result.error ? result.error : `Server xatosi (HTTP ${response.status}).`;
-                    showMessage(errorText, "error");
+                    showMessage(
+                        result && result.error
+                            ? result.error
+                            : "Server xatosi. HTTP: " +
+                              response.status,
+                        "error"
+                    );
+
                     return;
                 }
 
-                const messages = Array.isArray(result.messages) ? result.messages : [];
+                const messages = Array.isArray(result.messages)
+                    ? result.messages
+                    : [];
+
                 if (messages.length === 0) {
-                    showMessage("Hali xabarlar tarixi boâ€˜sh ðŸ“­");
+                    showMessage(
+                        "Hali xabarlar tarixi bo‘sh 📭"
+                    );
+
                     return;
                 }
 
                 listEl.replaceChildren();
-                messages.forEach((msg, index) => {
-                    const card = document.createElement("article");
+
+                messages.forEach(function (msg, index) {
+                    const card =
+                        document.createElement("article");
+
                     card.className = "msg-card";
 
-                    const header = document.createElement("div");
+                    const header =
+                        document.createElement("div");
+
                     header.className = "msg-header";
-                    const label = document.createElement("span");
-                    label.textContent = `ðŸ“Œ Xabar ${index + 1}${msg.id != null ? " Â· ID: " + msg.id : ""}`;
+
+                    const label =
+                        document.createElement("span");
+
+                    label.textContent =
+                        "📌 Xabar " + (index + 1) +
+                        (msg.id != null
+                            ? " · ID: " + msg.id
+                            : "");
+
                     header.appendChild(label);
 
                     if (msg.created) {
-                        const date = document.createElement("time");
+                        const date =
+                            document.createElement("time");
+
                         date.textContent = String(msg.created);
+
                         header.appendChild(date);
                     }
+
                     card.appendChild(header);
 
-                    const body = document.createElement("div");
+                    const body =
+                        document.createElement("div");
+
                     body.className = "msg-body";
 
-                    // Admin API javobida kimdan/kimga/xabar bitta text ichida kelishi mumkin.
-                    // Oddiy foydalanuvchi API javobida ham text maydoni ishlatiladi.
-                    const text = msg.text == null ? "" : String(msg.text);
-                    body.textContent = text || (msg.msg_type && msg.msg_type !== "text"
-                        ? `Matnsiz media xabar (${msg.msg_type})`
-                        : "Bu xabarning matni saqlanmagan.");
+                    const text = msg.text == null
+                        ? ""
+                        : String(msg.text);
+
+                    if (text) {
+                        body.textContent = text;
+                    } else if (
+                        msg.msg_type &&
+                        msg.msg_type !== "text"
+                    ) {
+                        body.textContent =
+                            "Matnsiz media xabar (" +
+                            msg.msg_type + ")";
+                    } else {
+                        body.textContent =
+                            "Bu xabarning matni saqlanmagan.";
+                    }
 
                     card.appendChild(body);
                     listEl.appendChild(card);
                 });
 
-                countEl.textContent = `Jami koâ€˜rsatilgan xabarlar: ${messages.length} ta`;
+                countEl.textContent =
+                    "Jami ko‘rsatilgan xabarlar: " +
+                    messages.length + " ta";
+
                 countEl.hidden = false;
-            } catch (err) {
-                console.error("Xabarlar tarixini olishda xatolik:", err);
+
+            } catch (error) {
+                console.error(
+                    "Xabarlar tarixini olishda xatolik:",
+                    error
+                );
+
                 showMessage(
-                    err && err.message
-                        ? `Serverga ulanib boâ€˜lmadi: ${err.message}`
-                        : "Serverga ulanishda xatolik yuz berdi. API manzili va backendni tekshiring.",
+                    "Serverga ulanishda xatolik: " +
+                    (error.message || "Noma’lum xato") +
+                    ". API manzili, server va tunnelni tekshiring.",
                     "error"
                 );
+
             } finally {
                 refreshBtn.disabled = false;
             }
         }
 
-        refreshBtn.addEventListener("click", fetchMessages);
+        refreshBtn.addEventListener(
+            "click",
+            fetchMessages
+        );
+
         fetchMessages();
     </script>
 </body>
