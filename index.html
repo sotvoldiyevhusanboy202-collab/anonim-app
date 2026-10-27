@@ -63,8 +63,7 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // ⚠️ DIQQAT: Pastdagi API_URL manzilini o'zingizning internetga ulangan bot serveringiz manzili bilan o'zgartiring!
-        // Masalan: LocalTunnel yoki ngrok orqali olingan https://xxxx.loca.lt manzili
+        // Cloudflare Tunnel orqali olingan to'liq havolangiz
         const API_URL = "https://retrieved-coalition-shepherd-certain.trycloudflare.com"; 
 
         async function fetchMessages() {
@@ -102,7 +101,6 @@
                     card.innerHTML = `
                         <div class="msg-header">
                             <span>📌 Xabar ID: #${msg.id}</span>
-                            <span>📅 ${msg.created}</span>
                         </div>
                         <div class="msg-body">
                             ${msg.text ? escapeHtml(msg.text) : '<i>Media xabar</i>'}
@@ -112,7 +110,7 @@
                 });
 
             } catch (err) {
-                listEl.innerHTML = '<div class="empty">Serverga ulanishda xatolik yuz berdi! Bot serveringiz ishlayotganini va API_URL to\'g'ri ekanligini tekshiring.</div>';
+                listEl.innerHTML = '<div class="empty">Serverga ulanishda xatolik yuz berdi! Termux da cloudflared ishlab turganini tekshiring.</div>';
             }
         }
 
@@ -124,3 +122,4 @@
     </script>
 </body>
 </html>
+
