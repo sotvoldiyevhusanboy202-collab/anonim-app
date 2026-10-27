@@ -63,17 +63,14 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Cloudflare Tunnel orqali olingan to'liq havolangiz
+        // Cloudflare Tunnel havolangiz
         const API_URL = "https://cold-scanned-dirt-orders.trycloudflare.com"; 
 
         async function fetchMessages() {
             const listEl = document.getElementById('messages-list');
-            const initData = tg.initData;
-
-            if (!initData) {
-                listEl.innerHTML = '<div class="empty">Telegram ilovasi ichidan oching!</div>';
-                return;
-            }
+            
+            // initData bo'lmasa ham sinov uchun bo'sh yuboramiz yoki Telegram obyektidan olamiz
+            const initData = tg.initData || "";
 
             try {
                 const response = await fetch(`${API_URL}/api/messages`, {
@@ -100,7 +97,7 @@
                     card.className = 'msg-card';
                     card.innerHTML = `
                         <div class="msg-header">
-                            <span>📌 Xabar ID: #${msg.id}</span>
+                            <span>📌 Xabar</span>
                         </div>
                         <div class="msg-body">
                             ${msg.text ? escapeHtml(msg.text) : '<i>Media xabar</i>'}
@@ -110,7 +107,7 @@
                 });
 
             } catch (err) {
-                listEl.innerHTML = '<div class="empty">Serverga ulanishda xatolik yuz berdi! Termux da cloudflared ishlab turganini tekshiring.</div>';
+                listEl.innerHTML = '<div class="empty">Serverga ulanishda xatolik yuz berdi!</div>';
             }
         }
 
@@ -122,4 +119,3 @@
     </script>
 </body>
 </html>
-
