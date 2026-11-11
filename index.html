@@ -143,7 +143,7 @@
         const API_URL =
             "https://initiative-behavioral-exactly-barrier.trycloudflare.com";
 
-        const tg 
+        const tg =
             window.Telegram && window.Telegram.WebApp
                 ? window.Telegram.WebApp
                 : null;
@@ -176,7 +176,7 @@
         async function fetchMessages() {
             refreshBtn.disabled = true;
 
-            showMessage("Xabarlar yuklanmoqda...");
+            showMessage("Xabarlar yuklanmoqda...", "loading");
 
             if (!tg) {
                 showMessage(
